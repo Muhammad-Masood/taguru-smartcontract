@@ -2,6 +2,9 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
+import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
+import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 contract TAGuru is ERC20,Ownable{
 
@@ -24,6 +27,9 @@ struct admin{
         string qnaIpfs;
     }
 
+    IUniswapV2Router02 public uniswapV2Router;
+    address public  uniswapV2Pair;
+
     uint256 public signUpReward;
     string[] cvsIpfs;
     mapping(address => candidate) private cand;
@@ -37,7 +43,16 @@ struct admin{
     event NewCv(address indexed candidate);
 
     constructor () ERC20("TAGuru","TAG"){
-        _mint(owner(), 100000000000000000000000);
+         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+         // Create a uniswap pair for this new token
+        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
+            .createPair(address(this), _uniswapV2Router.WETH());
+
+        // set the rest of the contract variables
+        uniswapV2Router = _uniswapV2Router;
+        
+        _mint(owner(), 2000000*10**18);
+
     }
 
     //signup fields for candidate/admin
